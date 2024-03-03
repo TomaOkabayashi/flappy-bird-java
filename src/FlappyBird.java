@@ -71,6 +71,8 @@ public class FlappyBird extends JPanel implements ActionListener{ //flappybird c
   }
 
   public void draw(Graphics g) {
+    //debug statement
+    // System.out.println("draw");
     //background
     g.drawImage(backgroundImg, 0, 0, boardWidth, boardHeight, null); //image object, cords for top left corner 0,0, bottom right corner 360, 640
 
