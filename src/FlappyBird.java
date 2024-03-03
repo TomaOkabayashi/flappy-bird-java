@@ -6,7 +6,7 @@ import java.util.ArrayList; //Stores all the pipes
 import java.util.Random.*; //Places pipes in random positions
 import javax.swing.*;
 
-public class FlappyBird extends JPanel implements ActionListener{ //flappybird class inherits JPanel class
+public class FlappyBird extends JPanel implements ActionListener, KeyListener{ //flappybird class inherits JPanel class
   
   int boardWidth = 360;
   int boardHeight = 640;
@@ -38,12 +38,18 @@ public class FlappyBird extends JPanel implements ActionListener{ //flappybird c
 
   //game logic
   Bird bird;
+  int velocityY = 0;
+  int gravity = 1;
+
   Timer gameLoop;
+  
 
 
   FlappyBird() { //constructor
     setPreferredSize(new Dimension(boardWidth, boardHeight));
     // setBackground(Color.blue);
+    setFocusable(true); //makes sure the flappybird class/jpanel is the one that takes in the key events
+    addKeyListener(this); //checks the three key listner functions
 
     //initialise images onto each variable
     backgroundImg =
@@ -77,13 +83,37 @@ public class FlappyBird extends JPanel implements ActionListener{ //flappybird c
     g.drawImage(backgroundImg, 0, 0, boardWidth, boardHeight, null); //image object, cords for top left corner 0,0, bottom right corner 360, 640
 
     //bird
-    g.drawImage(birdImg, birdX, birdY, birdWidth, birdHeight, null);
+    g.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height, null);
   }
+
+
+  //move function
+  public void move() {
+    //bird
+    velocityY += gravity;
+    bird.y += velocityY;
+    bird.y = Math.max(bird.y, 0);
+  }
+
 
   @Override
   public void actionPerformed(ActionEvent e) {
     // TODO Auto-generated method stub
     // This actio is going to be performed 60 times a second
+    move();
     repaint();
   }
+
+  
+
+  @Override
+  public void keyPressed(KeyEvent e) {
+    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+      velocityY = -10;
+    }
+  }
+  @Override
+  public void keyTyped(KeyEvent e) {}
+  @Override
+  public void keyReleased(KeyEvent e) {}
 }

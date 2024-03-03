@@ -17,6 +17,7 @@ public class FlappyBirdFrame {
     frame.add(flappyBird);
     frame.pack(); //used to size the JFrame automatically to the size of the widgets within the page.
     // without .pack the dimensions will take into account the dimensions of the title bar. .pack discludes it
+    flappyBird.requestFocus();
     frame.setVisible(true); //Set window visible after adding all settings, JPanel to frame then visibility=true
   }
 }
