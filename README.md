@@ -39,7 +39,6 @@ To run the game, you need to compile the FlappyBirdFrame.java file and execute t
 
 - This project utilizes Java's Swing library for creating the game window and graphics.
 - No external dependencies are required apart from the standard Java Development Kit (JDK).
--
 
 ## Context
 
