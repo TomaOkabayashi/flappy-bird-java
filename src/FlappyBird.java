@@ -3,6 +3,7 @@
 import java.awt.*;
 import java.awt.event.*; //Provides interfaces and classes for dealing with different types of events fired by AWT components
 import java.util.ArrayList; //Stores all the pipes
+import java.util.Random;
 import java.util.Random.*; //Places pipes in random positions
 import javax.swing.*;
 
@@ -36,14 +37,40 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{ /
     }
   }
 
+  //Pipes
+  int pipeX = boardWidth;
+  int pipeY = 0;
+  int pipeWidth = 64; //scaled by 1/6
+  int pipeHeight = 512;
+
+
+  class Pipe {
+    int x = pipeX;
+    int y = pipeY;
+    int width = pipeWidth;
+    int height = pipeHeight;
+    Image img;
+    boolean passed = false;
+
+    Pipe(Image img) {
+      this.img = img;
+    }
+  }
+
   //game logic
   Bird bird;
-  int velocityY = 0;
+  int velocityX = -4; //for pipes
+  int velocityY = 0; //for bird
   int gravity = 1;
 
-  Timer gameLoop;
-  
+  ArrayList<Pipe> pipes; 
+  Random random = new Random();
 
+
+  Timer gameLoop;
+  Timer placePipesTimer;
+
+  boolean gameOver = false;
 
   FlappyBird() { //constructor
     setPreferredSize(new Dimension(boardWidth, boardHeight));
@@ -64,11 +91,38 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{ /
 
     //bird
     bird = new Bird(birdImg);
+    pipes = new ArrayList<Pipe>();
+
+    //place pipes timer
+    placePipesTimer = new Timer(1500, new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        placePipes();
+      }
+    }); //Every 1.5secs, calls action
+
+    placePipesTimer.start();
 
     //game timer
     gameLoop = new Timer(1000/60, this); //60 times per second/60frames, 'this' refers to the current instance/object of the flappy bird class
     gameLoop.start();
       
+  }
+
+  public void placePipes() {
+    //(0-1) * pipeHeight/2.
+    // 0 -> -128 (pipeHeight/4)
+    // 1 -> -128 - 256 (pipeHeight/4 - pipeHeight/2) = -3/4 pipeHeight
+    int randomPipeY = (int) (pipeY - pipeHeight/4 - Math.random()*(pipeHeight/2));
+    int openingSpace = boardHeight/4;
+
+    Pipe topPipe = new Pipe(topPipeImg);
+    topPipe.y = randomPipeY;
+    pipes.add(topPipe);
+
+    Pipe bottomPipe = new Pipe(bottomPipeImg);
+    bottomPipe.y = topPipe.y + pipeHeight + openingSpace;
+    pipes.add(bottomPipe); //add bottom pipe to array list
   }
 
   public void paintComponent(Graphics g) {
@@ -84,6 +138,12 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{ /
 
     //bird
     g.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height, null);
+
+    //pipes
+    for (int i = 0; i < pipes.size(); i++) {
+      Pipe pipe = pipes.get(i);
+      g.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height, null);
+    }
   }
 
 
@@ -93,6 +153,16 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{ /
     velocityY += gravity;
     bird.y += velocityY;
     bird.y = Math.max(bird.y, 0);
+
+    //pipes
+    for (int i = 0; i < pipes.size(); i++) {
+      Pipe pipe = pipes.get(i);
+      pipe.x += velocityX;
+    }
+
+    if (bird.y > boardHeight) {
+      gameOver = true;
+    }
   }
 
 
@@ -102,6 +172,10 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{ /
     // This actio is going to be performed 60 times a second
     move();
     repaint();
+    if (gameOver) {
+      placePipesTimer.stop();
+      gameLoop.stop();
+    }
   }
 
   
